@@ -26,7 +26,7 @@ const Welcome = () => {
             className="w-[130px] h-[84px]"
             resizeMode="contain"
           />
-
+{/* cccccccc */}
           <Image
             source={images.cards}
             className="max-w-[380px] w-full h-[298px]"
