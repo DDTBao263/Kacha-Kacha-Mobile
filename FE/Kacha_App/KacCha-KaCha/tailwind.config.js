@@ -13,12 +13,26 @@ module.exports = {
         },
         black: {
           DEFAULT: "#000",
-          100: "#1E1E2D",
+          100: "#333333",
           200: "#232533",
         },
         gray: {
-          100: "#CDCDE0",
+          100: "#828282",
         },
+        primary_1: {
+          DEFAULT: "#3880ee",
+          100: "#3880ee",
+          200: "#2a80b9",
+        },
+        purple: {
+          DEFAULT: "#c087e5",
+          100: "#c087e5",
+          200: "#8f2f9a",
+        },
+        pink: "#e02f73",
+        orange: "#ef8b19",
+        green: "#41b70b",
+
       },
       fontFamily: {
         pthin: ["Poppins-Thin", "sans-serif"],
