@@ -33,9 +33,9 @@ const TabLayout = () => {
           tabBarShowLabel: false,
           tabBarStyle: {
             backgroundColor: "#F9F9F9", 
-            borderTopWidth: 2,
+            borderTopWidth: 4,
             borderTopColor: "#E5E5EA", 
-            height: 50, 
+            height: 70, 
           },
           tabBarItemStyle: {
             justifyContent: "center",
@@ -97,7 +97,7 @@ const TabLayout = () => {
       </Tabs>
 
       {/* <Loader isLoading={loading} /> */}
-      <StatusBar backgroundColor="#161622" style="light" />
+      <StatusBar style="dark" />
     </>
   );
 };

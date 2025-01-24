@@ -3,4 +3,10 @@ const { withNativeWind } = require("nativewind/metro");
 
 const config = getDefaultConfig(__dirname);
 
-module.exports = withNativeWind(config, { input: "./global.css" });
+// Sử dụng NativeWind
+const nativeWindConfig = withNativeWind(config, { input: "./global.css" });
+
+// Thêm phần mở rộng 'cjs' để Firebase hoạt động
+nativeWindConfig.resolver.sourceExts.push("cjs");
+
+module.exports = nativeWindConfig;

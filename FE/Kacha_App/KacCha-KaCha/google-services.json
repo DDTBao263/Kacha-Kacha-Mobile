@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "801323199719",
+    "project_id": "kacha-kacha-e5652",
+    "storage_bucket": "kacha-kacha-e5652.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:801323199719:android:ee671f47e0a15463bb4642",
+        "android_client_info": {
+          "package_name": "com.tydy234.KachaKacha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDltCXHV_oHjYKirwpztx3D0QuqbKcvWb8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

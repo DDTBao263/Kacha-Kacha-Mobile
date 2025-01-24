@@ -17,7 +17,8 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSFaceIDUsageDescription": "Allow Kacha-Kacha to use Face ID for authentication."
-      }
+      },
+      "bundleIdentifier": "com.tydy234.KachaKacha"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,7 +26,10 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.tydy234.KachaKacha",
-      "permissions": []
+      "permissions": [
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -39,6 +43,14 @@
           "faceIDPermission": "Allow Kacha-Kacha to use Face ID."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "392db073-de29-4657-b8e5-5f2ec20a12e3"
+      }
+    }
   }
 }
