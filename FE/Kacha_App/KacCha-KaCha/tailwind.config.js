@@ -5,6 +5,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        approved: "#4CAF50",
+        pending: "#FFC107",
+        rejected: "#F44336",
         primary: "#161622",
         secondary: {
           DEFAULT: "#FF9C01",
@@ -32,7 +35,6 @@ module.exports = {
         pink: "#e02f73",
         orange: "#ef8b19",
         green: "#41b70b",
-
       },
       fontFamily: {
         pthin: ["Poppins-Thin", "sans-serif"],
