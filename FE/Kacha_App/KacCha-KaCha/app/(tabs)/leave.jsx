@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Text, TouchableOpacity, View, FlatList, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 import { PieChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -117,6 +118,7 @@ const LeaveAnalytics = () => {
 
   return (
     <SafeAreaView className="bg-white dark:bg-primary flex-1">
+    <StatusBar backgroundColor="#161622" style="light" />
       <View
         style={{
           flexDirection: "row",
