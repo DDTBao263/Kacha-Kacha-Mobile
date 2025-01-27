@@ -1,4 +1,9 @@
-import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import {
+  Text,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 const CustomButton = ({
   title,
@@ -6,28 +11,55 @@ const CustomButton = ({
   containerStyles,
   textStyles,
   isLoading,
+  gradientColors,
+  icon,
+  iconStyles, 
 }) => {
-  return (
+  const ButtonContent = (
+    <>
+      {icon && (
+        <Image
+          source={icon}
+          className={`${iconStyles}`}
+          resizeMode="contain"
+        />
+      )}
+      <Text className={`font-psemibold mt-2 ${textStyles}`}>
+        {title}
+      </Text>
+    </>
+  );
+
+  return gradientColors ? (
+    <LinearGradient
+      colors={isLoading ? ["#d3d3d3", "#a9a9a9"] : gradientColors}
+      start={{ x: 0.1, y: 0 }}
+      end={{ x: 0.9, y: 1 }}
+      style={[
+        { borderRadius: 9999 },
+        isLoading && { opacity: 1 },
+      ]}
+      className={`overflow-hidden ${containerStyles}`}
+    >
+      <TouchableOpacity
+        onPress={handlePress}
+        activeOpacity={0.5} 
+        className={`flex-1 justify-center items-center ${isLoading ? "opacity-40" : ""}`}
+        disabled={isLoading}
+      >
+        {ButtonContent}
+      </TouchableOpacity>
+    </LinearGradient>
+  ) : (
     <TouchableOpacity
       onPress={handlePress}
-      activeOpacity={0.7}
-      className={`bg-secondary rounded-xl min-h-[62px] flex flex-row justify-center items-center ${containerStyles} ${
+      activeOpacity={0.5}
+      className={`bg-secondary flex flex-row justify-center items-center ${containerStyles} ${
         isLoading ? "opacity-50" : ""
       }`}
       disabled={isLoading}
     >
-      <Text className={`text-primary font-psemibold text-lg ${textStyles}`}>
-        {title}
-      </Text>
-
-      {isLoading && (
-        <ActivityIndicator
-          animating={isLoading}
-          color="#fff"
-          size="small"
-          className="ml-2"
-        />
-      )}
+      {ButtonContent}
     </TouchableOpacity>
   );
 };

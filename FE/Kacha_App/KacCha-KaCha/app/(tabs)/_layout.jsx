@@ -6,14 +6,14 @@ import { icons } from "../../constants";
 import { Loader } from "../../components";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
-const TabIcon = ({ icon, color }) => {
+const TabIcon = ({ icon, color, styleSize }) => {
   return (
     <View className="flex items-center justify-center">
       <Image
         source={icon}
         resizeMode="contain"
         tintColor={color}
-        className="w-6 h-6" // Tăng kích thước icon để rõ ràng hơn
+        className={`w-7 h-7 ${styleSize}`} // Tăng kích thước icon để rõ ràng hơn
       />
     </View>
   );
@@ -35,7 +35,7 @@ const TabLayout = () => {
             backgroundColor: "#F9F9F9", 
             borderTopWidth: 4,
             borderTopColor: "#E5E5EA", 
-            height: 70, 
+            height: 65, 
           },
           tabBarItemStyle: {
             justifyContent: "center",
@@ -51,6 +51,20 @@ const TabLayout = () => {
               <TabIcon
                 icon={icons.home}
                 color={color}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="shift"
+          options={{
+            headerShown: false,
+            tabBarIcon: ({ color }) => (
+              <TabIcon
+                icon={icons.shift}
+                color={color}
+                styleSize={"w-9 h-9"}
               />
             ),
           }}

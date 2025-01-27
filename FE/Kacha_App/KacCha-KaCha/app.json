@@ -42,7 +42,8 @@
         {
           "faceIDPermission": "Allow Kacha-Kacha to use Face ID."
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "extra": {
       "router": {

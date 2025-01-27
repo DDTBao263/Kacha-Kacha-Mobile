@@ -13,6 +13,13 @@ import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
 import calendar from "../assets/icons/calendar.png";
 import time from "../assets/icons/time-quarter-to.png";
+import hot_pot from "../assets/icons/hot-pot.png";
+import tap from "../assets/icons/tap.png";
+import birthday_cake from "../assets/icons/birthday-cake.png"; 
+import clock_in from "../assets/icons/clock in.png"; 
+import clock_out from "../assets/icons/clock out.png"; 
+import total_hour from "../assets/icons/total hour.png"; 
+import shift from "../assets/icons/shift.png"; 
 
 export default {
   play,
@@ -30,4 +37,11 @@ export default {
   eye,
   calendar,
   time,
+  hot_pot,
+  tap,
+  birthday_cake,
+  clock_in,
+  clock_out,
+  total_hour,
+  shift,
 };
