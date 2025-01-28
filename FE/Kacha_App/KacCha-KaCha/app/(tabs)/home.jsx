@@ -11,7 +11,7 @@ import {
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CustomButton, Event, DisciplineEmployee } from "../../components"; 
+import { CustomButton, Event, DisciplineEmployee } from "../../components";
 import { icons, images } from "../../constants";
 
 const Home = () => {
@@ -94,9 +94,8 @@ const Home = () => {
 
   return (
     <ScrollView>
-      <SafeAreaView className="flex-1 bg-white">
       <StatusBar backgroundColor="#161622" style="light" />
-
+      <SafeAreaView className="flex-1 bg-white">
         {/* Personal Title */}
         <View className="bg-blue-500 h-44 p-6 w-full">
           <View className="flex-row items-center">
@@ -124,7 +123,7 @@ const Home = () => {
               {currentTime.format("MMMM DD, YYYY - dddd")}
             </Text>
           </View>
-          
+
           {/* Button Checkin Checkout */}
           <View className="mt-4 justify-center items-center">
             <CustomButton
