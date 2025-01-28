@@ -5,6 +5,7 @@ import EmptyState from "./EmptyState";
 import CustomButton from "./CustomButton";
 import Event from "./Event";
 import DisciplineEmployee from "./DisciplineEmployee"
+import ShiftEmployee from "./ShiftEmployee"
 
 export {
   FormField,
@@ -14,4 +15,5 @@ export {
   EmptyState,
   Event,
   DisciplineEmployee,
+  ShiftEmployee,
 };
