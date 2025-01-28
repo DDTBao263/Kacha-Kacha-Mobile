@@ -234,7 +234,7 @@ const LeaveAnalytics = () => {
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <View
-                  className={`flex-row mb-4 p-4 rounded-lg border-l border-b border-gray-300 p-4 justify-between`}
+                  className={`flex-row mb-4 p-4 rounded-lg border-l border-b border-gray-300 justify-between`}
                 >
                   <View className={`flex-1`}>
                     <View className="flex-row items-center">
@@ -275,7 +275,7 @@ const LeaveAnalytics = () => {
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <View
-                  className={`mb-4 p-4 rounded-lg border-l border-b border-gray-300 p-4`}
+                  className={`mb-4 p-4 rounded-lg border-l border-b border-gray-300`}
                 >
                   <View className="flex-row items-center">
                     <View
