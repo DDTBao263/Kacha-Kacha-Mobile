@@ -97,7 +97,7 @@ const TabLayout = () => {
         />
 
         <Tabs.Screen
-          name="profile"
+          name="(profile)"
           options={{
             headerShown: false,
             tabBarIcon: ({ color }) => (
