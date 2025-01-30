@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  FlatList,
+  RefreshControl,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { icons, images } from "../../constants";
 import dayjs from "dayjs";
@@ -10,11 +18,14 @@ const Calendar = () => {
 
   const filters = ["All", "Attendance", "Early Leave", "Late in", "Absents"];
 
-  // Tạo danh sách ngày trong tháng hiện tại
+  // Tạo danh sách ngày trong tháng hiện tại và lọc các ngày trong tương lai
+  const today = dayjs();
   const daysInMonth = Array.from(
     { length: currentMonth.daysInMonth() },
     (_, i) => currentMonth.add(i, "day")
-  );
+  )
+    .filter((day) => day.isBefore(today, "day"))
+    .reverse();
 
   // Chuyển sang tháng trước
   const handlePrevMonth = () => {
@@ -23,7 +34,9 @@ const Calendar = () => {
 
   // Chuyển sang tháng sau
   const handleNextMonth = () => {
-    setCurrentMonth(currentMonth.add(1, "month"));
+    if (currentMonth.isBefore(today.startOf("month"), "month")) {
+      setCurrentMonth(currentMonth.add(1, "month"));
+    }
   };
 
   return (
@@ -65,12 +78,19 @@ const Calendar = () => {
             tintColor={"#3880ee"}
           />
         </View>
-        <TouchableOpacity onPress={handleNextMonth}>
+        <TouchableOpacity
+          onPress={handleNextMonth}
+          disabled={!currentMonth.isBefore(today.startOf("month"), "month")}
+        >
           <Image
             source={icons.rightArrow}
             className="w-6 h-6"
             resizeMode="contain"
-            tintColor={"#3880ee"}
+            tintColor={
+              currentMonth.isBefore(today.startOf("month"), "month")
+                ? "#3880ee"
+                : "#ccc"
+            }
           />
         </TouchableOpacity>
       </View>
@@ -105,23 +125,14 @@ const Calendar = () => {
       </View>
 
       {/* Attendance List */}
-      <ScrollView className="mt-2">
-        {daysInMonth.map((day, index) => (
+      <FlatList
+        data={daysInMonth}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item: day, index }) => (
           <View
             key={index}
             className="bg-white p-4 m-2 rounded-lg shadow flex-col"
           >
-            {/* <View className="flex-row justify-between items-center">
-              <View className="flex-row items-center">
-                <Text className="text-xl font-bold text-gray-800 mr-2">
-                  {day.format("DD")}
-                </Text>
-                <Text className="text-gray-500">{day.format("ddd")}</Text>
-              </View>
-              <Text className="text-sm font-medium text-green-500">
-                Full Day
-              </Text>
-            </View> */}
             <View className="flex-row justify-between mt-4">
               <View className="rounded-[10] px-4 py-2 border flex justify-center items-center">
                 <Text className="text-3xl font-bold text-gray-800">
@@ -169,8 +180,9 @@ const Calendar = () => {
               </View>
             </View>
           </View>
-        ))}
-      </ScrollView>
+        )}
+        refreshControl={<RefreshControl refreshing={false} />}
+      />
     </SafeAreaView>
   );
 };
