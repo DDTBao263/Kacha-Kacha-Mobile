@@ -6,6 +6,7 @@ import CustomButton from "./CustomButton";
 import Event from "./Event";
 import DisciplineEmployee from "./DisciplineEmployee"
 import ShiftEmployee from "./ShiftEmployee"
+import FormLeave from "./FormLeave"
 
 export {
   FormField,
@@ -16,4 +17,5 @@ export {
   Event,
   DisciplineEmployee,
   ShiftEmployee,
+  FormLeave,
 };

@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { PieChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import FormLeave from "../../components/FormLeave";
+import { FormLeave } from "../../components"
 
 const LeaveAnalytics = () => {
   const [activeTab, setActiveTab] = useState("Approvals");

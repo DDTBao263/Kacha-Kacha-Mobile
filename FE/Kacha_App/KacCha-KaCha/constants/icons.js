@@ -20,6 +20,9 @@ import clock_in from "../assets/icons/clock in.png";
 import clock_out from "../assets/icons/clock out.png"; 
 import total_hour from "../assets/icons/total hour.png"; 
 import shift from "../assets/icons/shift.png"; 
+import telephone from "../assets/icons/telephone.png"; 
+import email from "../assets/icons/email.png"; 
+import location from "../assets/icons/location.png"; 
 
 export default {
   play,
@@ -44,4 +47,7 @@ export default {
   clock_out,
   total_hour,
   shift,
+  telephone,
+  email,
+  location,
 };
