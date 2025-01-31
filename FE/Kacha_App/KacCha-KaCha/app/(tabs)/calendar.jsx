@@ -32,7 +32,7 @@ const Calendar = () => {
     setCurrentMonth(currentMonth.subtract(1, "month"));
   };
 
-  // Chuyển sang tháng sau
+  // Chuyển sang tháng sau nếu tháng hiện tại trên UI nhỏ hơn tháng hiện tại
   const handleNextMonth = () => {
     if (currentMonth.isBefore(today.startOf("month"), "month")) {
       setCurrentMonth(currentMonth.add(1, "month"));
