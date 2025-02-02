@@ -3,7 +3,7 @@ import { Link, router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, Alert, Image } from "react-native";
 
-import { images } from "../../constants";
+import { images, icons } from "../../constants";
 import { CustomButton, FormField } from "../../components";
 // import { getCurrentUser, signIn } from "../../lib/appwrite";
 // import { useGlobalContext } from "../../context/GlobalProvider";
@@ -13,6 +13,7 @@ const SignIn = () => {
   // const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     email: "",
+    employeeId: "",
     password: "",
   });
 
@@ -39,7 +40,7 @@ const SignIn = () => {
   };
 
   return (
-    <SafeAreaView className="bg-primary h-full">
+    <SafeAreaView className="bg-primary_1-200 h-full">
       <ScrollView>
         <View
           className="w-full flex justify-center h-full px-4 my-6"
@@ -47,18 +48,24 @@ const SignIn = () => {
             minHeight: Dimensions.get("window").height - 100,
           }}
         >
-          <Image
-            source={images.logo}
-            resizeMode="contain"
-            className="w-[115px] h-[34px]"
-          />
+          <View className="flex-row items-center w-fit">
+            <Image
+              source={icons.hot_pot}
+              resizeMode="contain"
+              className="w-20 h-20"
+            />
+            <Text className="text-xl font-pregular text-white">
+              Kacha-Kacha Hot-pot
+            </Text>
+          </View>
 
-          <Text className="text-2xl font-semibold text-white mt-10 font-psemibold">
-            Log in to Aora
+          <Text className="text-2xl text-white mt-10 font-psemibold">
+            Log in to Kacha-Kacha
           </Text>
 
           <FormField
             title="Email"
+            textStyles="text-white mt-2"
             value={form.email}
             handleChangeText={(e) => setForm({ ...form, email: e })}
             otherStyles="mt-7"
@@ -66,7 +73,16 @@ const SignIn = () => {
           />
 
           <FormField
+            title="EmployeeID"
+            textStyles="text-white mt-2"
+            value={form.employeeId}
+            handleChangeText={(e) => setForm({ ...form, employeeId: e })}
+            otherStyles="mt-7"
+          />
+
+          <FormField
             title="Password"
+            textStyles="text-white mt-2"
             value={form.password}
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyles="mt-7"
@@ -75,21 +91,9 @@ const SignIn = () => {
           <CustomButton
             title="Sign In"
             handlePress={submit}
-            containerStyles="mt-7"
+            containerStyles="mt-7 rounded-xl py-3"
             // isLoading={isSubmitting}
           />
-
-          <View className="flex justify-center pt-5 flex-row gap-2">
-            <Text className="text-lg text-gray-100 font-pregular">
-              Don't have an account?
-            </Text>
-            <Link
-              href="/sign-up"
-              className="text-lg font-psemibold text-secondary"
-            >
-              Signup
-            </Link>
-          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
