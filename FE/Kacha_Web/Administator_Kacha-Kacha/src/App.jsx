@@ -1,14 +1,23 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { ToastContainer } from "react-toastify";
 import "./App.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { ROUTES } from "./routes";
+import LayoutMain from "./layouts/Main";
+import HomePage from "./pages/Home";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const router = createBrowserRouter([
+    /////////// PUBLIC ROUTES ///////////
+    {
+      path: ROUTES.HOME,
+      element: <LayoutMain Component={HomePage} />,
+    },
+  ])
 
   return (
     <>
-      <p className="read-the-docs">Code đi mấy thằng lồn</p>
+      <ToastContainer />
+      <RouterProvider router={router} />
     </>
   );
 }
