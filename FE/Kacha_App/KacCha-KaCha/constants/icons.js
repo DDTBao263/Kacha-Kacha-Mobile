@@ -23,6 +23,8 @@ import shift from "../assets/icons/shift.png";
 import telephone from "../assets/icons/telephone.png"; 
 import email from "../assets/icons/email.png"; 
 import location from "../assets/icons/location.png"; 
+import coffee_break from "../assets/icons/coffee-break.png"; 
+import bell from "../assets/icons/bell.png"; 
 
 export default {
   play,
@@ -50,4 +52,6 @@ export default {
   telephone,
   email,
   location,
+  coffee_break,
+  bell,
 };

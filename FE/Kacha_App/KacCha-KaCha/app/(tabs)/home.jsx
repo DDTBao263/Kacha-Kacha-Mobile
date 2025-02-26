@@ -5,16 +5,22 @@ import {
   View,
   Text,
   Image,
-  FlatList,
   RefreshControl,
+  TouchableOpacity,
+  Animated,
+  Easing,
+  FlatList,
+  Pressable,
 } from "react-native";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CustomButton, Event, DisciplineEmployee } from "../../components";
 import { icons, images } from "../../constants";
+import NotifiPost from "../../components/NotifiPost";
 
 const Home = () => {
+  const [panel, setPanel] = useState(false);
   const [colorButton, setColorButton] = useState(["#3880ee", "#c087e5"]);
   const [able, setAble] = useState(false);
   const [currentTime, setCurrentTime] = useState(dayjs());
@@ -53,6 +59,50 @@ const Home = () => {
       dateTime: "August 21",
     },
   ]);
+  const [noti, setNoti] = useState([
+    {
+      id: "1",
+      title: "Day off Request",
+      mainReason: "Approved Requested!",
+      dateTime: "August 21",
+    },
+  ]);
+
+  const slideAnim = useState(new Animated.Value(-100))[0];
+  const fadeAnim = useState(new Animated.Value(0))[0];
+
+  const togglePanel = () => {
+    if (panel) {
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: -100,
+          duration: 250,
+          easing: Easing.ease,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => setPanel(false));
+    } else {
+      setPanel(true);
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -93,28 +143,105 @@ const Home = () => {
   };
 
   return (
-    <ScrollView>
-      <StatusBar backgroundColor="#161622" style="light" />
-      <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView>
+        <StatusBar backgroundColor="#161622" style="light" />
         {/* Personal Title */}
         <View className="bg-blue-500 h-44 p-6 w-full">
-          <View className="flex-row items-center">
-            <Image
-              source={images.profile}
-              className="w-20 h-20 rounded-full border-2 border-white"
-              resizeMode="contain"
-            />
-            <View className="ml-4">
-              <Text className="text-white text-base">Mr. Raman Kumar</Text>
-              <Text className="text-white font-bold text-lg">
-                Mark Your Attendance!
-              </Text>
+          <View className="flex-row justify-between items-center">
+            <View className="flex-row items-center">
+              <Image
+                source={images.profile}
+                className="w-20 h-20 rounded-full border-2 border-white"
+                resizeMode="contain"
+              />
+              <View className="ml-4">
+                <Text className="text-white text-base">Mr. Raman Kumar</Text>
+                <Text className="text-white font-bold text-lg">
+                  Mark Your Attendance!
+                </Text>
+              </View>
+            </View>
+            {/* Bell Notifications */}
+            <TouchableOpacity onPress={togglePanel}>
+              <Image source={icons.bell} className="w-10 h-10" />
+            </TouchableOpacity>
+
+            {/* Pressable Area (Overlay để đóng popup khi bấm ngoài) */}
+            {panel && (
+              <Pressable
+                className="absolute inset-0 z-10"
+                onPress={togglePanel}
+              >
+                <Animated.View
+                  className="absolute top-20 right-4 w-72 bg-white shadow-lg p-4 rounded-lg border border-gray-300 z-50 elevation-5"
+                  style={{
+                    transform: [{ translateY: slideAnim }],
+                    opacity: fadeAnim,
+                  }}
+                >
+                  <Text className="text-lg font-bold mb-2">Notifications</Text>
+                  <ScrollView className="max-h-64">
+                    {noti.map((item) => (
+                      <NotifiPost
+                        key={item.id}
+                        id={item.id}
+                        title={item.title}
+                        mainReason={item.mainReason}
+                        dateTime={item.dateTime}
+                      />
+                    ))}
+                  </ScrollView>
+                </Animated.View>
+              </Pressable>
+            )}
+          </View>
+        </View>
+
+        {/* Current Shifttoday */}
+        <View className="relative top-[-40px] bg-white h-fit py-2 w-11/12 mx-auto rounded-xl shadow-md">
+          <View className="flex-col">
+            <Text className="ml-4 font-pbold text-xl">
+              Shift Today - Shift A1
+            </Text>
+            <View>
+              <View className="w-11/12 p-3 mx-auto flex-row items-center justify-center gap-5 mt-3 border border-gray-200 rounded-xl">
+                <View className="w-[80px] flex-col items-center justify-center">
+                  <Image
+                    source={icons.clock_in}
+                    className="w-10 h-10"
+                    resizeMode="contain"
+                  />
+                  <Text className="font-plight text-green">Clock In</Text>
+                  <Text className="font-psemibold text-xl">8:00</Text>
+                </View>
+
+                <View className="w-[80px] flex-col items-center justify-center mx-3">
+                  <Image
+                    source={icons.clock_out}
+                    className="w-10 h-10"
+                    resizeMode="contain"
+                  />
+                  <Text className="font-plight text-red-600">Clock Out</Text>
+                  <Text className="font-psemibold text-xl">21:00</Text>
+                </View>
+
+                <View className="w-[80px] flex-col items-center justify-center">
+                  <Image
+                    source={icons.coffee_break}
+                    className="w-8 h-8 mb-2"
+                    resizeMode="contain"
+                  />
+                  <Text className="font-plight text-blue-600">Breaktime</Text>
+                  <Text className="font-psemibold text-xl">1:30</Text>
+                </View>
+              </View>
             </View>
           </View>
         </View>
 
         {/* CheckIn and CheckOut */}
-        <View className="relative top-[-40px] bg-white w-11/12 mx-auto rounded-xl shadow-md">
+        <View className="bg-white w-11/12 mx-auto rounded-xl shadow-md">
           <View className="justify-center items-center p-5">
             <Text className="text-4xl font-bold text-black">
               {currentTime.format("hh:mm A")}
@@ -179,7 +306,7 @@ const Home = () => {
 
         {/* Information */}
         {/* Discipline Personal Employee */}
-        <View className="w-11/12 mx-auto">
+        <View className="w-11/12 mx-auto mt-3">
           <View className="flex gap-1 ml-4 mb-5">
             <Text className="font-pbold text-xl">Attendance</Text>
             <Text className="font-plight text-base">Current Month</Text>
@@ -222,6 +349,7 @@ const Home = () => {
           <FlatList
             data={posts}
             keyExtractor={(item) => item.id}
+            nestedScrollEnabled={true}
             renderItem={({ item }) => (
               <Event
                 id={item.id}
@@ -238,8 +366,8 @@ const Home = () => {
             }
           />
         </View>
-      </SafeAreaView>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
