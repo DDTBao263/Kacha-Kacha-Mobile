@@ -49,7 +49,7 @@ const Home = () => {
       avatar: images.profile,
       title: "Happy Anniversary 3",
       mainReason: "Thien Nguyen",
-      dateTime: "October 14",
+      dateTime: "Octoaaaaber 14",
     },
     {
       id: "4",
