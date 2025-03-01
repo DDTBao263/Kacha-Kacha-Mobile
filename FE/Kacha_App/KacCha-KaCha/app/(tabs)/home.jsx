@@ -6,20 +6,19 @@ import {
   Text,
   Image,
   RefreshControl,
-  TouchableOpacity,
-  Animated,
-  Easing,
   FlatList,
-  Pressable,
 } from "react-native";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CustomButton, Event, DisciplineEmployee } from "../../components";
 import { icons, images } from "../../constants";
-import NotifiPost from "../../components/NotifiPost";
-
+import { useGlobalContext } from "../../context/GlobalProvider";
+import { requestUserPermission, getFCMToken, usePushNotifications } from "../../lib/usePushNoti";
+import NotificationBell from "../../components/NotificationBell"; // 🔥 Import component mới
 const Home = () => {
+  const { notifications } = useGlobalContext();
+  const [fcmToken, setFcmToken] = useState(null);
   const [panel, setPanel] = useState(false);
   const [colorButton, setColorButton] = useState(["#3880ee", "#c087e5"]);
   const [able, setAble] = useState(false);
@@ -59,50 +58,6 @@ const Home = () => {
       dateTime: "August 21",
     },
   ]);
-  const [noti, setNoti] = useState([
-    {
-      id: "1",
-      title: "Day off Request",
-      mainReason: "Approved Requested!",
-      dateTime: "August 21",
-    },
-  ]);
-
-  const slideAnim = useState(new Animated.Value(-100))[0];
-  const fadeAnim = useState(new Animated.Value(0))[0];
-
-  const togglePanel = () => {
-    if (panel) {
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: -100,
-          duration: 250,
-          easing: Easing.ease,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start(() => setPanel(false));
-    } else {
-      setPanel(true);
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -143,9 +98,12 @@ const Home = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView>
-        <StatusBar backgroundColor="#161622" style="light" />
+    <SafeAreaView className="flex-1 bg-slate-200 z-10">
+      <StatusBar backgroundColor="#161622" style="light" />
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled={true}
+      >
         {/* Personal Title */}
         <View className="bg-blue-500 h-44 p-6 w-full">
           <View className="flex-row justify-between items-center">
@@ -156,45 +114,14 @@ const Home = () => {
                 resizeMode="contain"
               />
               <View className="ml-4">
-                <Text className="text-white text-base">Mr. Raman Kumar</Text>
+                <Text className="text-white text-base">Raman Kumar</Text>
                 <Text className="text-white font-bold text-lg">
                   Mark Your Attendance!
                 </Text>
               </View>
             </View>
             {/* Bell Notifications */}
-            <TouchableOpacity onPress={togglePanel}>
-              <Image source={icons.bell} className="w-10 h-10" />
-            </TouchableOpacity>
-
-            {/* Pressable Area (Overlay để đóng popup khi bấm ngoài) */}
-            {panel && (
-              <Pressable
-                className="absolute inset-0 z-10"
-                onPress={togglePanel}
-              >
-                <Animated.View
-                  className="absolute top-20 right-4 w-72 bg-white shadow-lg p-4 rounded-lg border border-gray-300 z-50 elevation-5"
-                  style={{
-                    transform: [{ translateY: slideAnim }],
-                    opacity: fadeAnim,
-                  }}
-                >
-                  <Text className="text-lg font-bold mb-2">Notifications</Text>
-                  <ScrollView className="max-h-64">
-                    {noti.map((item) => (
-                      <NotifiPost
-                        key={item.id}
-                        id={item.id}
-                        title={item.title}
-                        mainReason={item.mainReason}
-                        dateTime={item.dateTime}
-                      />
-                    ))}
-                  </ScrollView>
-                </Animated.View>
-              </Pressable>
-            )}
+            <NotificationBell /> 
           </View>
         </View>
 
@@ -241,7 +168,7 @@ const Home = () => {
         </View>
 
         {/* CheckIn and CheckOut */}
-        <View className="bg-white w-11/12 mx-auto rounded-xl shadow-md">
+        <View className="bg-white w-11/12 mx-auto rounded-xl shadow-xl">
           <View className="justify-center items-center p-5">
             <Text className="text-4xl font-bold text-black">
               {currentTime.format("hh:mm A")}

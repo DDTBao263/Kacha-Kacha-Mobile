@@ -5,7 +5,7 @@
     "slug": "Kacha-Kacha",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/hotpoticon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -21,8 +21,9 @@
       "bundleIdentifier": "com.tydy234.KachaKacha"
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/images/hotpoticon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.tydy234.KachaKacha",
@@ -46,11 +47,8 @@
       "expo-localization"
     ],
     "extra": {
-      "router": {
-        "origin": false
-      },
       "eas": {
-        "projectId": "392db073-de29-4657-b8e5-5f2ec20a12e3"
+        "projectId": "26c18035-e065-4803-ad2a-cf5c6b5de3fa"
       }
     }
   }
