@@ -1,52 +1,67 @@
-import { useState } from "react";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
+import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, ScrollView, Dimensions, Alert, Image, Button } from "react-native";
+import { View, Text, ScrollView, Alert, Image } from "react-native";
 import { icons } from "../../constants";
+import { CustomButton } from "../../components";
+import { signInWithGoogle } from "../../lib/useGoogleFirebase";
+import { requestUserPermission, getFCMToken } from "../../lib/usePushNoti";
 import { useGlobalContext } from "../../context/GlobalProvider";
-import useGoogleFirebase from "../../lib/useGoogleFirebase"; // Import hook đăng nhập với Google
 
 const SignIn = () => {
-  const { setUser, setIsLogged } = useGlobalContext();
-  const { user, signInWithGoogle } = useGoogleFirebase(); // Sử dụng hook Google login
-
-  // Khi user đã đăng nhập, chuyển hướng về trang chủ
-  if (user) {
-    setUser(user);
-    setIsLogged(true);
-    router.replace("/home");
-  }
+  const [fcmToken, setFcmToken] = useState();
+  const { setUser } = useGlobalContext();
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle();
-      Alert.alert("Success", "You are signed in with Google!");
+      const userLogin = await signInWithGoogle();
+      setUser(userLogin);
+
+      router.replace("/home");
     } catch (error) {
-      Alert.alert("Error", error.message);
+      console.error("Google Sign-In Error:", error);
+      Alert.alert(
+        "Error",
+        error.message || "Something went wrong. Please try again."
+      );
     }
   };
 
+  useEffect(() => {
+    const initializeFCM = async () => {
+      const hasPermission = await requestUserPermission();
+      if (hasPermission) {
+        const token = await getFCMToken();
+        setFcmToken(token);
+        console.log("FCM Token: ", fcmToken);
+      }
+    };
+    initializeFCM();
+  });
+
   return (
-    <SafeAreaView className="bg-primary_1-200 h-full">
-      <ScrollView>
-        <View
-          className="w-full flex justify-center h-full px-4 my-6"
-          style={{
-            minHeight: Dimensions.get("window").height - 100,
-          }}
-        >
-          <View className="flex-row items-center w-fit">
-            <Image source={icons.hot_pot} resizeMode="contain" className="w-20 h-20" />
-            <Text className="text-xl font-pregular text-white">
+    <SafeAreaView className="flex-1 bg-primary_1-200">
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 justify-center items-center px-6">
+          <View className="flex-col items-center space-x-3 mb-6">
+            <Image
+              source={icons.hot_pot}
+              className="w-40 h-40"
+              resizeMode="contain"
+            />
+            <Text className="text-2xl font-semibold text-white mt-10">
               Kacha-Kacha Hot-pot
             </Text>
           </View>
 
-          <Text className="text-2xl text-white mt-10 font-psemibold">
-            Log in to Kacha-Kacha
-          </Text>
-
-          <Button title="Sign In with Google" color="#4285F4" onPress={handleGoogleSignIn} />
+          <CustomButton
+            title="Sign In with Google"
+            handlePress={handleGoogleSignIn}
+            containerStyles="w-full bg-white flex-row items-center justify-center py-3 rounded-lg shadow-md active:bg-gray-200"
+            textStyles="text-black text-lg font-medium"
+            icon={icons.google}
+            iconStyles="w-6 h-6 mr-3"
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

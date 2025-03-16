@@ -11,53 +11,114 @@ import {
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CustomButton, Event, DisciplineEmployee } from "../../components";
+import {
+  CustomButton,
+  Event,
+  DisciplineEmployee,
+  NotificationBell,
+} from "../../components";
 import { icons, images } from "../../constants";
+import {
+  apiGetCurrentHour,
+  apiGetEvent,
+  apiPostAttendance,
+  apiGetShiftToday,
+  apiPutAttendance,
+  apiGetAttendanceToday,
+} from "../../api";
+import useApiAxios from "../../lib/useApiAxios";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import { useGlobalContext } from "../../context/GlobalProvider";
-import { requestUserPermission, getFCMToken, usePushNotifications } from "../../lib/usePushNoti";
-import NotificationBell from "../../components/NotificationBell"; // 🔥 Import component mới
+
+dayjs.extend(customParseFormat);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const Home = () => {
-  const { notifications } = useGlobalContext();
-  const [fcmToken, setFcmToken] = useState(null);
-  const [panel, setPanel] = useState(false);
+  const { user } = useGlobalContext();
+  const { data: serverTime } = useApiAxios(apiGetCurrentHour);
+  const { data: postApi } = useApiAxios(apiGetEvent);
+  const { data: shiftToday } = useApiAxios(() =>
+    apiGetShiftToday({ employee_id: user.employee_id })
+  );
+
+  const { data: attendanceToday } = useApiAxios(() =>
+    apiGetAttendanceToday({ employee_id: user.employee_id })
+  );
+
+  // console.log(attendanceToday)
+
   const [colorButton, setColorButton] = useState(["#3880ee", "#c087e5"]);
   const [able, setAble] = useState(false);
-  const [currentTime, setCurrentTime] = useState(dayjs());
+  const [currentTime, setCurrentTime] = useState(
+    dayjs(serverTime).utc().utcOffset(7)
+  );
   const [clockIn, setClockIn] = useState("");
   const [clockOut, setClockOut] = useState("");
   const [totalHours, setTotalHours] = useState("");
   const [clockState, setClockState] = useState("Clock In");
   const [refreshing, setRefreshing] = useState(false);
-  const [posts, setPosts] = useState([
-    {
-      id: "1",
-      avatar: images.profile,
-      title: "Happy Birthday 1",
-      mainReason: "Neha Singh",
-      dateTime: "March 22",
-    },
-    {
-      id: "2",
-      avatar: images.profile,
-      title: "Happy Anniversary 2",
-      mainReason: "John Doe",
-      dateTime: "April 5",
-    },
-    {
-      id: "3",
-      avatar: images.profile,
-      title: "Happy Anniversary 3",
-      mainReason: "Thien Nguyen",
-      dateTime: "Octoaaaaber 14",
-    },
-    {
-      id: "4",
-      avatar: images.profile,
-      title: "Happy Anniversary 4",
-      mainReason: "An DHT",
-      dateTime: "August 21",
-    },
-  ]);
+
+  const [formDataPost, setFormDataPost] = useState({
+    employeeId: user.employee_id,
+    checkIn: "",
+    checkOut: "",
+    breakTime: shiftToday?.breakDuration,
+    note: "",
+    date: shiftToday?.date,
+    shiftId: shiftToday?.shiftId,
+  });
+
+  useEffect(() => {
+    if (shiftToday) {
+      setFormDataPost((prevData) => ({
+        ...prevData,
+        breakTime: shiftToday?.breakDuration,
+        shiftId: shiftToday?.shiftId,
+        date: shiftToday?.date,
+      }));
+    }
+  }, [shiftToday]);
+
+  useEffect(() => {
+    if (attendanceToday?.CheckInTime && !attendanceToday?.CheckOutTime) {
+      const checkInTime = dayjs(attendanceToday?.CheckInTime)
+        .utc()
+        .utcOffset(7);
+      setClockIn(checkInTime.format("HH:mm"));
+      setClockState("Clock Out");
+    } else if (attendanceToday?.CheckOutTime && attendanceToday?.CheckInTime) {
+      const checkInTime = dayjs(attendanceToday?.CheckInTime)
+        .utc()
+        .utcOffset(7);
+      const checkOutTime = dayjs(attendanceToday?.CheckOutTime)
+        .utc()
+        .utcOffset(7);
+
+      setClockIn(checkInTime.format("HH:mm"));
+      setClockOut(checkOutTime.format("HH:mm"));
+
+      const duration = checkOutTime.diff(checkInTime, "minute");
+
+      if (duration < 0) {
+        console.error("Invalid time duration detected.");
+        return;
+      }
+
+      const hours = Math.floor(duration / 60);
+      const minutes = duration % 60;
+      const formatTime = (val) => String(val).padStart(2, "0");
+
+      setTotalHours(`${formatTime(hours)}:${formatTime(minutes)}`);
+      setColorButton(["#ccc", "#828282"]);
+      setAble(true);
+    }
+  }, [attendanceToday]);
+
+  const [formDataPut, setFormDataPut] = useState({
+    checkOut: `${(dayjs(currentTime).utc().utcOffset(7))}`,
+  });
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -65,29 +126,66 @@ const Home = () => {
   };
 
   useEffect(() => {
+    if (serverTime) {
+      setCurrentTime(dayjs(serverTime).utc().utcOffset(7));
+    }
     const timer = setInterval(() => {
-      setCurrentTime(dayjs());
+      setCurrentTime((prevTime) => prevTime.add(1, "second"));
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [serverTime]);
 
   const handleClockState = () => {
-    dayjs.extend(customParseFormat);
+    const updatedTime = dayjs(currentTime).utc().utcOffset(7);
     if (clockState === "Clock In") {
-      setClockIn(currentTime.format("HH:mm"));
+      setClockIn(updatedTime.format("HH:mm"));
       setClockState("Clock Out");
       setColorButton(["#c087e5", "#e02f73"]);
+
+      const updatedFormDataPost = {
+        ...formDataPost,
+        checkIn: updatedTime,
+        date: shiftToday?.date,
+      };
+
+      const CallApiPostAttendance = async () => {
+        const response = await apiPostAttendance({
+          formData: updatedFormDataPost,
+        });
+      };
+      CallApiPostAttendance();
     } else if (clockState === "Clock Out") {
-      const clockOutTime = currentTime.format("HH:mm");
+      const clockOutTime = updatedTime.format("HH:mm");
       setClockOut(clockOutTime);
+
+      const updatedFormDataPut = {
+        ...formDataPut,
+        checkOut: updatedTime,
+      };
+
+      const CallApiPutAttendance = async () => {
+        const response = await apiPutAttendance({
+          attendanceId: attendanceToday.AttendanceId,
+          formData: updatedFormDataPut,
+        });
+      }; 
+      CallApiPutAttendance();
+
       if (clockIn) {
         const start = dayjs(clockIn, "HH:mm");
         const end = dayjs(clockOutTime, "HH:mm");
         const duration = end.diff(start, "minute");
+
+        if (duration < 0) {
+          console.error("Invalid time duration detected.");
+          return;
+        }
+
         const hours = Math.floor(duration / 60);
         const minutes = duration % 60;
         const formatTime = (val) => String(val).padStart(2, "0");
+
         setTotalHours(`${formatTime(hours)}:${formatTime(minutes)}`);
         setColorButton(["#ccc", "#828282"]);
         setAble(true);
@@ -98,7 +196,7 @@ const Home = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-200 z-10">
+    <SafeAreaView className="flex-1 bg-slate-100 z-10">
       <StatusBar backgroundColor="#161622" style="light" />
       <ScrollView
         keyboardShouldPersistTaps="handled"
@@ -121,7 +219,7 @@ const Home = () => {
               </View>
             </View>
             {/* Bell Notifications */}
-            <NotificationBell /> 
+            <NotificationBell />
           </View>
         </View>
 
@@ -140,7 +238,12 @@ const Home = () => {
                     resizeMode="contain"
                   />
                   <Text className="font-plight text-green">Clock In</Text>
-                  <Text className="font-psemibold text-xl">8:00</Text>
+                  <Text className="font-psemibold text-xl">
+                    {dayjs(shiftToday?.startTime)
+                      .utc()
+                      .utcOffset(7)
+                      .format("HH:mm")}
+                  </Text>
                 </View>
 
                 <View className="w-[80px] flex-col items-center justify-center mx-3">
@@ -150,7 +253,12 @@ const Home = () => {
                     resizeMode="contain"
                   />
                   <Text className="font-plight text-red-600">Clock Out</Text>
-                  <Text className="font-psemibold text-xl">21:00</Text>
+                  <Text className="font-psemibold text-xl">
+                    {dayjs(shiftToday?.endTime)
+                      .utc()
+                      .utcOffset(7)
+                      .format("HH:mm")}
+                  </Text>
                 </View>
 
                 <View className="w-[80px] flex-col items-center justify-center">
@@ -274,16 +382,16 @@ const Home = () => {
             <Text className="text-lg font-bold">Upcoming Events</Text>
           </View>
           <FlatList
-            data={posts}
-            keyExtractor={(item) => item.id}
+            data={postApi}
+            keyExtractor={(item) => item.eventId}
             nestedScrollEnabled={true}
             renderItem={({ item }) => (
               <Event
-                id={item.id}
+                id={item.eventId}
                 avatar={item.avatar}
                 title={item.title}
-                mainReason={item.mainReason}
-                dateTime={item.dateTime}
+                mainReason={item.content}
+                dateTime={item.dateCreated}
               />
             )}
             horizontal

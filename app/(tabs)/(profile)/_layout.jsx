@@ -1,13 +1,7 @@
 import { Redirect, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 
-import { Loader } from "../../../components/Loader";
-import { useGlobalContext } from "../../../context/GlobalProvider";
-
 const ProfileLayout = () => {
-  //   const { loading, isLogged } = useGlobalContext();
-
-  //   if (!loading && isLogged) return <Redirect href="/home" />;
 
   return (
     <>

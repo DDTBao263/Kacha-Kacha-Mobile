@@ -7,6 +7,8 @@ import Event from "./Event";
 import DisciplineEmployee from "./DisciplineEmployee"
 import ShiftEmployee from "./ShiftEmployee"
 import FormLeave from "./FormLeave"
+import NotificationBell from "./NotificationBell"
+import NotifiPost from "./NotifiPost"
 
 export {
   FormField,
@@ -18,4 +20,6 @@ export {
   DisciplineEmployee,
   ShiftEmployee,
   FormLeave,
+  NotificationBell,
+  NotifiPost,
 };

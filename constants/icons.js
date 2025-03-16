@@ -25,6 +25,7 @@ import email from "../assets/icons/email.png";
 import location from "../assets/icons/location.png"; 
 import coffee_break from "../assets/icons/coffee-break.png"; 
 import bell from "../assets/icons/bell.png"; 
+import google from "../assets/icons/google.png"; 
 
 export default {
   play,
@@ -54,4 +55,5 @@ export default {
   location,
   coffee_break,
   bell,
+  google,
 };

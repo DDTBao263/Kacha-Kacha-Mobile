@@ -1,16 +1,16 @@
 import { StatusBar } from "expo-status-bar";
-import { router } from "expo-router";
+import { router, Redirect } from "expo-router";
+import { useEffect, useState } from "react";
 import { View, Text, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { icons } from "../constants";
 import { images } from "../constants";
 import { CustomButton } from "../components";
-// import { useGlobalContext } from "../context/GlobalProvider";
+import { useGlobalContext } from "../context/GlobalProvider";
 
 const Welcome = () => {
-  //   const { loading, isLogged } = useGlobalContext();
-
-  //   if (!loading && isLogged) return <Redirect href="/home" />;
+  const { user } = useGlobalContext();
+  if (user) return <Redirect href="/home" />;
 
   return (
     <SafeAreaView className="bg-primary_1-200 h-full">
@@ -27,7 +27,9 @@ const Welcome = () => {
               className="w-[80px] h-[84px]"
               resizeMode="contain"
             />
-            <Text className="w-[150px] text-white font-pregular text-2xl">Kacha kacha</Text>
+            <Text className="w-[150px] text-white font-pregular text-2xl">
+              Kacha kacha
+            </Text>
           </View>
 
           <Image

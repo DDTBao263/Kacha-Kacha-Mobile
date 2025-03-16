@@ -13,7 +13,7 @@ const TabIcon = ({ icon, color, styleSize }) => {
         source={icon}
         resizeMode="contain"
         tintColor={color}
-        className={`w-7 h-7 ${styleSize}`} // Tăng kích thước icon để rõ ràng hơn
+        className={`w-7 h-7 ${styleSize}`} 
       />
     </View>
   );

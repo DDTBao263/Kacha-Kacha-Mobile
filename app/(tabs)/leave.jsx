@@ -1,98 +1,80 @@
-import React, { useState } from "react";
-import { Text, TouchableOpacity, View, FlatList, Modal } from "react-native";
+import React, { useState, useEffect } from "react";
+import { Text, TouchableOpacity, View, FlatList, Modal, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { PieChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { FormLeave } from "../../components"
+import { FormLeave } from "../../components";
+import { apiGetApplication } from "../../api";
+import useApiAxios from "../../lib/useApiAxios";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import { useGlobalContext } from "../../context/GlobalProvider";
+
+dayjs.extend(customParseFormat);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const LeaveAnalytics = () => {
+  const { user } = useGlobalContext();
+  const { data: applicationss } = useApiAxios(() =>
+    apiGetApplication({ employee_id: user.employee_id })
+  );
+  const [applications, setapplications] = useState(applicationss)
+  const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState("Approvals");
   const [modalVisible, setModalVisible] = useState(false);
   const screenWidth = Dimensions.get("window").width;
 
-  const chartData = [
-    {
-      name: "Medical Leave",
-      population: 1,
-      color: "#F0CA56",
-      legendFontColor: "#7F7F7F",
-      legendFontSize: 12,
-    },
-    {
-      name: "Casual Leave",
-      population: 2,
-      color: "#5CCEF2",
-      legendFontColor: "#7F7F7F",
-      legendFontSize: 12,
-    },
-    {
-      name: "Sick Leave",
-      population: 3,
-      color: "#c087e5",
-      legendFontColor: "#7F7F7F",
-      legendFontSize: 12,
-    },
-    {
-      name: "Remaing Leave",
-      population: 6,
-      color: "#E0E0E0",
-      legendFontColor: "#7F7F7F",
-      legendFontSize: 12,
-    },
-  ];
+  const fetchApplications = async () => {
+    setRefreshing(true);
+    try {
+      const applications = await apiGetApplication({ employee_id: user.employee_id });
+      setapplications(applications.data)
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+      setapplications([])
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
-  const approvalsData = [
-    {
-      id: "1",
-      leaveType: "Medical Leave",
-      applyDateFrom: "2023-10-01",
-      applyDateTo: "2023-10-05",
-      createDate: "2023-09-25",
-      status: "Approved",
-    },
-    {
-      id: "2",
-      leaveType: "Sick Leave",
-      applyDateFrom: "2023-10-05",
-      applyDateTo: "2023-10-07",
-      createDate: "2023-09-28",
-      status: "Pending",
-    },
-    {
-      id: "3",
-      leaveType: "Casual Leave",
-      applyDateFrom: "2023-10-10",
-      applyDateTo: "2023-10-12",
-      createDate: "2023-09-30",
-      status: "Rejected",
-    },
-    {
-      id: "4",
-      leaveType: "Casual Leave",
-      applyDateFrom: "2023-10-10",
-      applyDateTo: "2023-10-12",
-      createDate: "2023-09-30",
-      status: "Rejected",
-    },
-    {
-      id: "5",
-      leaveType: "Casual Leave",
-      applyDateFrom: "2023-10-10",
-      applyDateTo: "2023-10-12",
-      createDate: "2023-09-30",
-      status: "Rejected",
-    },
-  ];
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  const generateChartData = (applications) => {
+    const leaveTypeCounts = applications?.reduce((acc, app) => {
+      acc[app.leaveType] = (acc[app.leaveType] || 0) + 1;
+      return acc;
+    }, {});
+
+    return Object.entries(leaveTypeCounts).map(([type, count]) => ({
+      name: type,
+      population: count,
+      color:
+        type === "MEDICAL_LEAVE"
+          ? "#F0CA56"
+          : type === "SICK_LEAVE"
+          ? "#c087e5"
+          : "#E0E0E0",
+      legendFontColor: "#7F7F7F",
+      legendFontSize: 12,
+    }));
+  };
+
+  const chartData = generateChartData(applications || []);
 
   const getStatusBackgroundColor = (status) => {
     switch (status) {
-      case "Approved":
+      case "APPROVED":
         return "bg-approved";
-      case "Pending":
+      case "PENDING":
         return "bg-pending";
-      case "Rejected":
+      case "REJECTED":
         return "bg-rejected";
       default:
         return "bg-gray-100";
@@ -101,24 +83,24 @@ const LeaveAnalytics = () => {
 
   const getLeaveTypeColor = (leaveType) => {
     switch (leaveType) {
-      case "Medical Leave":
+      case "MEDICAL_LEAVE":
         return "#F0CA56";
-      case "Sick Leave":
+      case "SICK_LEAVE":
         return "#c087e5";
-      case "Casual Leave":
+      case "VACATION":
         return "#5CCEF2";
       default:
         return "#BDBDBD";
     }
   };
 
-  const approvedData = approvalsData.filter(
-    (item) => item.status === "Approved"
+  const approvedData = applications?.filter(
+    (item) => item.status === "APPROVED"
   );
 
   return (
     <SafeAreaView className="bg-white dark:bg-primary flex-1">
-    <StatusBar backgroundColor="#161622" style="light" />
+      <StatusBar backgroundColor="#161622" style="light" />
       <View
         style={{
           flexDirection: "row",
@@ -133,26 +115,11 @@ const LeaveAnalytics = () => {
         <Text className="text-3xl font-medium text-white dark:text-white">
           My Leave
         </Text>
-        {/* <TouchableOpacity
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            backgroundColor: "#ddd",
-            padding: 10,
-            borderRadius: 5,
-          }}
-          onPress={() => setModalVisible(true)}
-        >
-          <Ionicons name="add-circle-outline" size={20} color="black" />
-          <Text style={{ marginLeft: 5, fontWeight: "bold" }}>
-            Apply for leave
-          </Text>
-        </TouchableOpacity> */}
       </View>
       <View className="px-4 py-6 flex-1">
         <PieChart
           data={chartData}
-          width={screenWidth - 40} // Adjust the width
+          width={screenWidth - 40}
           height={220}
           chartConfig={{
             color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
@@ -163,27 +130,6 @@ const LeaveAnalytics = () => {
           center={[0, 0]}
           absolute
         />
-        {/* <View className="mt-4">
-          {chartData.map((item, index) => (
-            <View
-              key={index}
-              className="flex-row items-center justify-between mb-2"
-            >
-              <View className="flex-row items-center">
-                <View
-                  style={{ backgroundColor: item.color }}
-                  className="h-3 w-3 rounded-full mr-2"
-                />
-                <Text className="text-sm font-medium text-black dark:text-white">
-                  {item.name}
-                </Text>
-              </View>
-              <Text className="text-sm font-medium text-black dark:text-white">
-                {item.population}%
-              </Text>
-            </View>
-          ))}
-        </View> */}
         <View style={{ flexDirection: "row", marginTop: 10 }}>
           <TouchableOpacity
             style={{
@@ -230,8 +176,8 @@ const LeaveAnalytics = () => {
         <View style={{ marginTop: 10, flex: 1 }}>
           {activeTab === "Approvals" ? (
             <FlatList
-              data={approvalsData}
-              keyExtractor={(item) => item.id}
+              data={applications}
+              keyExtractor={(item) => item.applicationId}
               renderItem={({ item }) => (
                 <View
                   className={`flex-row mb-4 p-4 rounded-lg border-l border-b border-gray-300 justify-between`}
@@ -249,10 +195,19 @@ const LeaveAnalytics = () => {
                       </Text>
                     </View>
                     <Text className="text-sm font-medium text-black dark:text-white">
-                      Applied from {item.applyDateFrom} to {item.applyDateTo}
+                      Descripion: {item.description} {"\n"}
+                      FROM{" "}
+                      {`${dayjs(item.startDate)
+                        .utc()
+                        .utcOffset(7)
+                        .format("DD/MM/YYYY HH:mm")}`}
                     </Text>
                     <Text className="text-sm font-medium text-black dark:text-white">
-                      Create Date: {item.createDate}
+                      TO{" "}
+                      {`${dayjs(item.endDate)
+                        .utc()
+                        .utcOffset(7)
+                        .format("DD/MM/YYYY HH:mm")}`}
                     </Text>
                   </View>
                   <View
@@ -268,11 +223,12 @@ const LeaveAnalytics = () => {
                   </View>
                 </View>
               )}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={fetchApplications} />}
             />
           ) : (
             <FlatList
               data={approvedData}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.applicationId}
               renderItem={({ item }) => (
                 <View
                   className={`mb-4 p-4 rounded-lg border-l border-b border-gray-300`}
@@ -289,10 +245,23 @@ const LeaveAnalytics = () => {
                     </Text>
                   </View>
                   <Text className="text-sm font-medium text-black dark:text-white">
-                    Applied from {item.applyDateFrom} to {item.applyDateTo}
+                    Descripion: {item.description} {"\n"}
+                    FROM{" "}
+                    {`${dayjs(item.startDate)
+                      .utc()
+                      .utcOffset(7)
+                      .format("DD/MM/YYYY HH:mm")}`}
+                  </Text>
+                  <Text className="text-sm font-medium text-black dark:text-white">
+                    TO{" "}
+                    {`${dayjs(item.endDate)
+                      .utc()
+                      .utcOffset(7)
+                      .format("DD/MM/YYYY HH:mm")}`}
                   </Text>
                 </View>
               )}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={fetchApplications} />}
             />
           )}
         </View>

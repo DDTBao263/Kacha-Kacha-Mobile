@@ -17,7 +17,7 @@ import {
   getFCMToken,
 } from "../lib/usePushNoti";
 import { icons } from "../constants";
-import NotifiPost from "./NotifiPost";
+import  NotifiPost  from "../components/NotifiPost";
 
 const NotificationBell = () => {
   const [fcmToken, setFcmToken] = useState();
@@ -71,7 +71,7 @@ const NotificationBell = () => {
       }
     };
     initializeFCM();
-  }, []);
+  }, [notifications]);
 
   // Animation panel thông báo
   const slideAnim = useRef(new Animated.Value(-100)).current;
